@@ -9,7 +9,7 @@ let
   inherit (lib) mkIf mkOption;
   inherit (lib.types) bool;
 
-  cfg = config.setup.locales;
+  cfg = config.setup.nixPath;
 in
 {
   options = {
