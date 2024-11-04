@@ -9,11 +9,11 @@ let
   inherit (lib) mkIf mkOption;
   inherit (lib.types) bool;
 
-  cfg = config.setup.nixPath;
+  cfg = config.setup.nix-path;
 in
 {
   options = {
-    setup.nixPath = {
+    setup.nix-path = {
       enable = mkOption {
         type = bool;
         default = false;
