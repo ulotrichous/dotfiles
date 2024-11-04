@@ -3,6 +3,7 @@
 {
   setup.locales.enable = true;
   setup.nix-path.enable = true;
+  setup.nix-index.enable = true;
   setup.fonts.enable = true;
   setup.emacs.enable = true;
   setup.development = {
