@@ -1,0 +1,87 @@
+#+title: Extra Setup
+
+* Bash
+** =~/.bash_profile=
+#+begin_src shell
+  if [[ -f "$HOME/.nix-profile/etc/profile" ]]; then
+    source "$HOME/.nix-profile/etc/profile"
+  fi
+
+  if [[ -f "$HOME/.profile" ]]; then
+    source "$HOME/.profile"
+  fi
+
+  if [[ -f "$HOME/.bashrc" ]]; then
+    source "$HOME/.bashrc"
+  fi
+#+end_src
+
+** =~/.bashrc=
+#+begin_src shell
+  if [[ -f "$HOME/.nix-profile/etc/bashrc" ]]; then
+    source "$HOME/.nix-profile/etc/bashrc"
+  fi
+#+end_src
+
+* Git
+** =~/.config/git/config=
+The signing key id can be found with this command: ~gpg -K --keyid-format=long~.
+#+begin_src gitconfig
+  [user]
+        name = "user name"
+        email = "email@address.please"
+        signingkey = "keyid"
+#+end_src
+
+* gpg-agent + ssh
+** =~/.profile=
+#+begin_src shell
+  if [ -z "$SSH_AUTH_SOCK" ]; then
+    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+  fi
+#+end_src
+
+** =~/.bashrc=
+#+begin_src shell
+  export GPG_TTY="$(tty)"
+#+end_src
+
+** =~/.gnupg/gpg.conf=
+#+begin_src conf
+  pinentry-mode loopback
+#+end_src
+
+** =~/.gnupg/gpg-agent.conf=
+#+begin_src conf
+  allow-loopback-pinentry
+#+end_src
+
+** =~/.ssh/config=
+#+begin_src conf
+  Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
+#+end_src
+
+* Emacs Server as a Sysetmd Service
+** =~/.config/systemd/user/emacs.service=
+#+begin_src conf
+  [Unit]
+  Decscription=Emacs text editor
+  Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
+  After=default.target
+
+  [Service]
+  Type=notify
+  ExecStart=/usr/bin/bash -c 'source /home/<username>/.nix-profile/etc/set-environment; exec /home/<username>/.nix-profile/bin/emacs --fg-daemon'
+  ExecStop=/home/<username>/.nix-profile/bin/emacsclient --eval (kill-emacs)
+  Restart=on-failure
+
+  # Disable IME in Emacs
+  # Environment=XMODIFIERS=@im=none
+
+  # Emacs will exit with status 15 after having received SIGTERM, which
+  # is the default "KillSignal" value systemd uses to stop services.
+  SuccessExitStatus=15
+
+  [Install]
+  WantedBy=default.target
+#+end_src
