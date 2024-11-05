@@ -81,23 +81,19 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp :tangle default.el
   (setopt mode-line-format
           '("%e"
-            mode-line-front-space
-            (:eval (when (file-remote-p (and (buffer-file-name) ""))
-                     (format "(%s) " (system-name))))
+            (:eval (when (buffer-file-name)
+                     (if (buffer-modified-p) "● " "○ ")))
+            (:eval (when (file-remote-p default-directory)
+                     (format "(%s) " (file-remote-p default-directory 'host))))
             (:eval (propertize (buffer-name) 'face 'bold))
-            (:eval (if (and (not (null buffer-file-name))
-                            (buffer-modified-p))
-                       (propertize "*" 'face 'bold)
-                     " "))
             " "
             (vc-mode vc-mode)
 
             mode-line-format-right-align
 
-            (:eval (format-mode-line mode-name))
-            "  "
-            "%l:%c "
-            mode-line-end-spaces))
+            (:eval (format "%s " (format-mode-line mode-name)))
+            " "
+            "%l:%c"))
 #+end_src
 
 ** Customise and load =modus-themes=
