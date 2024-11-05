@@ -452,6 +452,13 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (marginalia-mode))
 #+end_src
 
+** =markdown-mode=
+#+begin_src emacs-lisp :tangle default.el
+  (use-package markdown-mode
+    :mode (("\\.md\\'" . markdown-mode)
+           ("README\\.md\\\'" . gfm-mode)))
+#+end_src
+
 ** =midnight=
 #+begin_src emacs-lisp :tangle default.el
   (use-package midnight

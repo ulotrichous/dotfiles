@@ -34,6 +34,7 @@ let
       git-modes
       haskell-ts-mode
       magit
+      markdown-mode
       rust-mode
       yaml-mode
     ];
