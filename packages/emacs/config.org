@@ -476,6 +476,16 @@ https://archive.casouri.cc/note/2021/fontset/index.html
                    (cons 'nix-mode #'nix-ts-mode))))
 #+end_src
 
+** =olivetti=
+#+begin_src emacs-lisp :tangle default.el
+  (use-package olivetti
+    :commands olivetti-mode
+    :bind (:repeat-map
+           olivetti-change-body-width-repeat-map
+           ("{" . olivetti-shrink)
+           ("}" . olivetti-expand)))
+#+end_src
+
 ** =orderless=
 #+begin_src emacs-lisp :tangle default.el
   (use-package orderless

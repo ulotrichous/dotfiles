@@ -51,6 +51,7 @@ let
       haskell-mode
       nix-mode
       nix-ts-mode
+      olivetti
       org-appear
       org-roam
       pdf-tools
