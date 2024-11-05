@@ -105,18 +105,13 @@ https://archive.casouri.cc/note/2021/fontset/index.html
           '((fringe unspecified)
             (bg-region bg-ochre)
             (fg-region unspecified)
-            ;; (bg-paren-match unspecified)
-            ;; (fg-paren-match cyan-intense)
-            ;; (bg-line-number-active unspecified)
-            ;; (fg-line-number-active cyan-faint)
             (bg-prose-block-contents unspecified)
             (bg-prose-block-delimiter unspecified)))
 
   (defun default/modus-themes-custom-faces (&rest _)
     (modus-themes-with-colors
       (custom-set-faces
-       '(region ((t :extend nil)))
-       '(show-paren-match ((t :inherit 'bold))))))
+       '(region ((t :extend nil))))))
 
   (add-hook 'modus-themes-after-load-theme-hook
             #'default/modus-themes-custom-faces)
