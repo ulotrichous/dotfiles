@@ -52,6 +52,7 @@ let
       nix-mode
       nix-ts-mode
       org-appear
+      org-roam
       pdf-tools
       web-mode
       wgrep
