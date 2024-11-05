@@ -5,6 +5,7 @@
   setup.nix-path.enable = true;
   setup.nix-index.enable = true;
   setup.emacs.enable = true;
+  setup.documentation.enable = true;
   setup.development.enable = true;
 
   programs.bash.enable = true;

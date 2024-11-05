@@ -1,5 +1,6 @@
 [
   ./development.nix
+  ./documentation.nix
   ./emacs.nix
   ./fonts.nix
   ./locales.nix

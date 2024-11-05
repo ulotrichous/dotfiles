@@ -6,14 +6,13 @@
   setup.nix-index.enable = true;
   setup.fonts.enable = true;
   setup.emacs.enable = true;
+  setup.documentation.enable = true;
   setup.development = {
     enable = true;
     java.enable = false;
   };
 
   programs.bash.enable = true;
-
-  documentation.enable = true;
 
   environment.packages = with pkgs; [
     curl
