@@ -81,11 +81,11 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp :tangle default.el
   (setopt mode-line-format
           '("%e"
-            (:eval (when (buffer-file-name)
-                     (if (buffer-modified-p) "● " "○ ")))
             (:eval (when (file-remote-p default-directory)
                      (format "(%s) " (file-remote-p default-directory 'host))))
-            (:eval (propertize (buffer-name) 'face 'bold))
+            (:eval (format "%s " (propertize (buffer-name) 'face 'bold)))
+            (:eval (when (buffer-file-name)
+                     (if (buffer-modified-p) "(*) " "(-) ")))
             " "
             (vc-mode vc-mode)
 
