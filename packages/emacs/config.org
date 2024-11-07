@@ -368,6 +368,14 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 #+end_src
 
+** =ement=
+#+begin_src emacs-lisp :tangle default.el
+  (use-package ement
+    :commands ement-connect
+    :custom
+    (ement-save-sessions t))
+#+end_src
+
 ** =envrc=
 #+begin_src emacs-lisp :tangle default.el
   (use-package envrc
@@ -401,6 +409,14 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :defer (not (daemonp))
     :custom
     (flymake-indicator-type 'margins))
+#+end_src
+
+** =gdb-mi=
+#+begin_src emacs-lisp :tangle default.el
+  (use-package gdb-mi
+    :commands gdb
+    :custom
+    (gdb-show-main t))
 #+end_src
 
 ** =haskell-mode=
