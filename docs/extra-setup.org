@@ -61,7 +61,7 @@ The signing key id can be found with this command: ~gpg -K --keyid-format=long~.
   Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
 #+end_src
 
-* Emacs Server as a Sysetmd Service
+* Emacs Server as a Systemd Service
 ** =~/.config/systemd/user/emacs.service=
 #+begin_src conf
   [Unit]
