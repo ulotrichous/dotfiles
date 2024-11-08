@@ -83,11 +83,11 @@ https://archive.casouri.cc/note/2021/fontset/index.html
           '("%e"
             (:eval (when (file-remote-p default-directory)
                      (format "(%s) " (file-remote-p default-directory 'host))))
+            (:eval (when (and (buffer-file-name) (buffer-modified-p) "*")))
             (:eval (format "%s " (propertize (buffer-name) 'face 'bold)))
-            (:eval (when (buffer-file-name)
-                     (if (buffer-modified-p) "(*) " "(-) ")))
-            " "
-            (vc-mode vc-mode)
+
+            (:eval (when vc-mode
+                     (format "|%s" vc-mode)))
 
             mode-line-format-right-align
 
