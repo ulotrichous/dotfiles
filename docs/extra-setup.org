@@ -1,0 +1,182 @@
+#+TITLE: Extra setup outside the Nix store
+
+* Load =nix-profile= into the shell
+** =~/.profile=
+#+begin_src shell :tangle .profile
+  if [ -f "$HOME/.nix-profile/etc/profile" ]; then
+    . "$HOME/.nix-profile/etc/profile"
+  fi
+
+  if [ -f "$HOME/.bashrc" ]; then
+    . "$HOME/.bashrc"
+  fi
+#+end_src
+
+** =~/.bashrc=
+#+begin_src shell :tangle .bashrc
+  if [ -f "$HOME/.nix-profile/etc/bashrc" ]; then
+    . "$HOME/.nix-profile/etc/bashrc"
+  fi
+#+end_src
+
+* Set git user information
+** =~/.config/git/config=
+#+begin_src gitconfig :tangle .config/git/config :mkdirp yes
+  [user]
+        # name = <user name>
+        # email = <email@address.please>
+        # signingkey = <keyid>
+#+end_src
+
+* Use GPG for SSH authentication
+** =~/gnupg/gpg.conf=
+#+begin_src conf :tangle .gnupg/gpg-agent.conf :mkdirp yes
+  enable-ssh-support
+#+end_src
+
+** =~/.ssh/config=
+#+begin_src conf :tangle .ssh/config :mkdirp yes
+  Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
+#+end_src
+
+** =~/.profile=
+#+begin_src shell :tangle .profile
+  if [ -z "$SSH_AUTH_SOCK" ]; then
+    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+  fi
+#+end_src
+
+** =~/.bashrc=
+#+begin_src shell :tangle .bashrc
+  export GPG_TTY="$(tty)"
+#+end_src
+
+* Enter passphrases for GPG keys through loopback Pinentry
+** =~/.gnupg/gpg-agent.conf=
+#+begin_src conf :tangle .gnupg/gpg-agent.conf :mkdirp yes
+  allow-loopback-pinentry
+#+end_src
+
+** =~/.gnupg/gpg.conf=
+This may be causing more harm than good. On one hand, =magit= won't let me
+enter the passphrase in the minibuffer without this option. Instead, the
+pinentry program will pop up and ask for the passphrase.
+
+On the other hand, =pass= doesn't seem be able to copy passwords to the system
+clipboard with this option.
+
+I'd prefer not to have a pinentry window poping up every now and then when I'm
+at emacs, but the trade-off is completely breaking =pass -c=, which I found
+definitely more annoying than the popups.
+#+begin_src conf :tangle .gnupg/gpg.conf :mkdirp yes
+  pinentry-mode loopback
+#+end_src
+
+* Use Huspell dictionaries for English in Enchant
+#+begin_src conf :tangle .config/enchant/enchant.ordering
+  *:hunspell
+#+end_src
+
+* Run Emacs as a daemon
+** =~/.config/systemd/user/emacs.service=
+#+begin_src conf :tangle .config/systemd/user/emacs.service :mkdirp yes
+  [Unit]
+  Decscription=Emacs text editor
+  After=default.target
+
+  [Service]
+  Type=notify
+  ExecStart=/usr/bin/bash -c 'source %h/.nix-profile/etc/set-environment; exec %h/.nix-profile/bin/emacs --fg-daemon'
+  ExecStop=%h/.nix-profile/bin/emacsclient --eval (kill-emacs)
+  Restart=on-failure
+
+  # Disable the system IME in Emacs.
+  # Environment=XMODIFIERS=@im=none
+
+  # Emacs will exit with status 15 after having received SIGTERM, which
+  # is the default "KillSignal" value systemd uses to stop services.
+  SuccessExitStatus=15
+
+  [Install]
+  WantedBy=default.target
+#+end_src
+
+* Run gpg-agent
+** =~/.config/systemd/user/gpg-agent.service=
+#+begin_src conf :tangle .config/systemd/user/gpg-agent.service :mkdirp yes
+  [Unit]
+  Description=GnuPG cryptographic agent and passphrase cache
+  Documentation=man:gpg-agent(1)
+  Requires=gpg-agent.socket
+
+  [Service]
+  ExecStart=%h/.nix-profile/bin/gpg-agent --supervised
+  ExecReload=%h/.nix-profile/bin/gpgconf --reload gpg-agent
+#+end_src
+
+** =~/.config/systemd/user/gpg-agent.socket=
+#+begin_src conf :tangle .config/systemd/user/gpg-agent.socket :mkdirp yes
+  [Unit]
+  Description=GnuPG cryptographic agent and passphrase cache
+  Documentation=man:gpg-agent(1)
+
+  [Socket]
+  ListenStream=%t/gnupg/S.gpg-agent
+  FileDescriptorName=std
+  SocketMode=0600
+  DirectoryMode=0700
+
+  [Install]
+  WantedBy=sockets.target
+#+end_src
+
+** =~/.config/systemd/user/gpg-agent-browser.socket=
+#+begin_src conf :tangle .config/systemd/user/gpg-agent-browser.socket :mkdirp yes
+  [Unit]
+  Description=GnuPG cryptographic agent and passphrase cache (access for web browsers)
+  Documentation=man:gpg-agent(1)
+
+  [Socket]
+  ListenStream=%t/gnupg/S.gpg-agent.browser
+  FileDescriptorName=browser
+  Service=gpg-agent.service
+  SocketMode=0600
+  DirectoryMode=0700
+
+  [Install]
+  WantedBy=sockets.target
+#+end_src
+
+** =~/.config/systemd/user/gpg-agent-ssh.socket=
+#+begin_src conf :tangle .config/systemd/user/gpg-agent-ssh.socket :mkdirp yes
+  [Unit]
+  Description=GnuPG cryptographic agent (ssh-agent emulation)
+  Documentation=man:gpg-agent(1) man:ssh-add(1) man:ssh-agent(1) man:ssh(1)
+
+  [Socket]
+  ListenStream=%t/gnupg/S.gpg-agent.ssh
+  FileDescriptorName=ssh
+  Service=gpg-agent.service
+  SocketMode=0600
+  DirectoryMode=0700
+
+  [Install]
+  WantedBy=sockets.target
+#+end_src
+
+** =~/.config/systemd/user/gpg-agent-extra.socket=
+#+begin_src conf :tangle .config/systemd/user/gpg-agent-extra.socket :mkdirp yes
+  [Unit]
+  Description=GnuPG cryptographic agent and passphrase cache (restricted)
+  Documentation=man:gpg-agent(1)
+
+  [Socket]
+  ListenStream=%t/gnupg/S.gpg-agent.extra
+  FileDescriptorName=extra
+  Service=gpg-agent.service
+  SocketMode=0600
+  DirectoryMode=0700
+
+  [Install]
+  WantedBy=sockets.target
+#+end_src

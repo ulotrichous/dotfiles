@@ -1,0 +1,86 @@
+{
+  "nodes": {
+    "emacs-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-stable": "nixpkgs-stable"
+      },
+      "locked": {
+        "lastModified": 1733361773,
+        "narHash": "sha256-b+cFO1MDGjkR6VnYfTiZTqWQtXbKKFIw0GzvEEzDEOs=",
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "rev": "2e6e7801a515f8dbece2d888244a6a2604e36e86",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "type": "github"
+      }
+    },
+    "nix-index-database": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1733024876,
+        "narHash": "sha256-vy9Q41hBE7Zg0yakF79neVgb3i3PQMSMR7uHPpPywFE=",
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "rev": "6e0b7f81367069589a480b91603a10bcf71f3103",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-index-database",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1733212471,
+        "narHash": "sha256-M1+uCoV5igihRfcUKrr1riygbe73/dzNnzPsmaLCmpo=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "55d15ad12a74eb7d4646254e13638ad0c4128776",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-stable": {
+      "locked": {
+        "lastModified": 1733261153,
+        "narHash": "sha256-eq51hyiaIwtWo19fPEeE0Zr2s83DYMKJoukNLgGGpek=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b681065d0919f7eb5309a93cea2cfa84dec9aa88",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-24.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "emacs-overlay": "emacs-overlay",
+        "nix-index-database": "nix-index-database",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

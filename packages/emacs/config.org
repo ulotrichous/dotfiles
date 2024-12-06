@@ -1,0 +1,988 @@
+#+TITLE: Emacs Configuration
+#+PROPERTY: header-args :tangle default.el
+
+* Utilities
+#+begin_src emacs-lisp
+  (defun nixp ()
+    (string-prefix-p "/nix/store" invocation-directory))
+#+end_src
+
+#+begin_src emacs-lisp
+  (eval-when-compile
+    (require 'auth-source)
+    (require 'auth-source-pass))
+
+  (defun lookup-password (host user port)
+    (require 'auth-source)
+    (require 'auth-source-pass)
+    (let ((auth (auth-source-search :host host :user user :port port)))
+      (if auth
+          (let ((secretf (plist-get (car auth) :secret)))
+            (if secretf
+                (funcall secretf)
+              (error "Auth entry for %s@%s:%s has no secret!"
+                     user host port)))
+        (error "No auth entry found for %s@%s:%s" user host port))))
+#+end_src
+
+* General Configuration
+** Integrate with the system trash directory
+#+begin_src emacs-lisp
+  (setopt delete-by-moving-to-trash t)
+#+end_src
+
+** Set the locale
+#+begin_src emacs-lisp
+  (setopt system-time-locale "C")
+#+end_src
+
+** Use spaces over tabs
+#+begin_src emacs-lisp
+  (setopt indent-tabs-mode nil)
+#+end_src
+
+** Adjust scroll behaviour
+#+begin_src emacs-lisp
+  (setopt scroll-conservatively 101)
+  (setopt scroll-margin 5)
+#+end_src
+
+** Turn on word wrap globally
+#+begin_src emacs-lisp
+  (global-visual-line-mode)
+#+end_src
+
+** Suppress beeping
+#+begin_src emacs-lisp
+  (setopt ring-bell-function 'ignore)
+#+end_src
+
+** Use bar cursor when mark is active
+#+begin_src emacs-lisp
+  (setopt cursor-type 'box)
+
+  (defun my-use-bar-cursor ()
+    (setq cursor-type 'bar))
+
+  (defun my-use-box-cursor ()
+    (setq cursor-type 'box))
+
+  (add-hook 'activate-mark-hook #'my-use-bar-cursor)
+  (add-hook 'deactivate-mark-hook #'my-use-box-cursor)
+#+end_src
+
+** Set up fonts
+https://archive.casouri.cc/note/2021/fontset/index.html
+#+begin_src emacs-lisp
+  (defun setup-fonts ()
+    (interactive)
+    (set-face-attribute 'default nil :family "Iosevka" :height 140)
+    (set-fontset-font t 'japanese-jisx0213.2004-1 "Sarasa Mono J")
+
+    (set-face-attribute 'fixed-pitch nil :family "Iosevka Term" :height 1.0)
+    (let ((fontset "fontset-fixed"))
+      (create-fontset-from-fontset-spec
+       (font-xlfd-name (font-spec :registry fontset)))
+      (set-fontset-font fontset 'japanese-jisx0213.2004-1 "Sarasa Term J")
+      (set-face-attribute 'fixed-pitch nil :fontset fontset))
+
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 1.0)
+    (let ((fontset "fontset-variable"))
+      (create-fontset-from-fontset-spec
+        (font-xlfd-name (font-spec :registry fontset)))
+      (set-fontset-font fontset 'japanese-jisx0213.2004-1 "Sarasa UI J")
+      (set-face-attribute 'variable-pitch nil :fontset fontset)))
+
+  (if (not (daemonp))
+      (setup-fonts)
+    (add-hook 'server-after-make-frame-hook #'setup-fonts))
+#+end_src
+
+** Load =use-package=
+#+begin_src emacs-lisp
+  (eval-when-compile
+    (require 'use-package))
+#+end_src
+
+** Remove unused UI elements
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+** Add padding between windows
+#+begin_src emacs-lisp
+  (modify-all-frames-parameters
+   '((internal-border-width . 15)
+     (right-divider-width . 15)))
+#+end_src
+
+** Mode line and header line
+#+begin_src emacs-lisp
+  (setq-default mode-line-format 'nil)
+
+  (setq-default header-line-format
+                '("%e"
+                  (:eval (buffer-name))))
+
+  (defun my-update-mode-line ()
+    (dolist (window (window-list))
+      (let* ((window-below
+              (window-in-direction 'below window))
+             (buffer-below
+              (and window-below
+                   (window-buffer window-below)))
+             (header-line-below
+              (and buffer-below
+                   (buffer-local-value 'header-line-format buffer-below))))
+        (set-window-parameter window 'mode-line-format
+                              (cond ((minibufferp buffer-below) (list " "))
+                                    (header-line-below nil)
+                                    (t (list " ")))))))
+
+  (add-hook 'window-configuration-change-hook #'my-update-mode-line)
+#+end_src
+
+** Customise the mode line
+#+begin_src emacs-lisp :tangle no
+  (setopt mode-line-format
+          '("%e"
+            (:eval (when (file-remote-p default-directory)
+                     (format "[%s] " (file-remote-p default-directory 'host))))
+            (:eval (when (and (buffer-file-name) (buffer-modified-p) "*")))
+            (:eval (format "%s " (propertize (buffer-name) 'face 'bold)))
+            (:eval (when (buffer-narrowed-p)
+                     (format "(narrow) ")))
+            " %l:%c"
+
+            mode-line-format-right-align
+
+            (:eval (when skk-mode
+                     (cond (skk-latin-mode "ASCII  ")
+                           (skk-jisx0208-latin-mode "全英  ")
+                           (skk-katakana "カナ  ")
+                           (t "かな  "))))
+            (:eval (when flymake-mode
+                     (format "%s  "
+                             (format-mode-line flymake-mode-line-counters))))
+            (:eval (when vc-mode
+                     (format "%s  " (string-trim vc-mode))))
+            (:eval (format "%s" (format-mode-line mode-name)))))
+#+end_src
+
+** Tweak =modus-themes=
+ #+begin_src emacs-lisp
+   (require-theme 'modus-themes)
+
+   (setopt modus-themes-mixed-fonts t)
+   (setopt modus-themes-ui-variable-pitch t)
+   (setopt modus-themes-common-palette-overrides
+           '((fringe unspecified)
+             (fg-region unspecified)
+             (bg-region bg-lavender)
+             (bg-line-number-active unspecified)
+             (bg-line-number-inactive unspecified)
+             (bg-prose-block-contents unspecified)
+             (bg-prose-block-delimiter unspecified)))
+
+   (defun modus-themes-set-custom-faces (&rest _)
+     (modus-themes-with-colors
+       (custom-set-faces
+        '(region ((t :extend nil)))
+        `(mode-line ((,c :height 0.1
+                         :foreground ,border
+                         :background ,bg-main
+                         :overline t
+                         :box nil)))
+        `(mode-line-inactive ((,c :height 0.1
+                                  :foreground ,border
+                                  :background ,bg-main
+                                  :overline t
+                                  :box nil)))
+        `(header-line ((,c :background ,bg-mode-line-inactive
+                           :box (:line-width (10 . 4) :color ,bg-mode-line-inactive)
+                           :inherit variable-pitch)))
+        `(window-divider ((,c :foreground ,bg-main)))
+        `(window-divider-first-pixel ((,c :foreground ,bg-main)))
+        `(window-divider-last-pixel ((,c :foreground ,bg-main))))))
+
+   (add-hook 'modus-themes-after-load-theme-hook
+             #'modus-themes-set-custom-faces)
+
+   (modus-themes-load-theme 'modus-operandi)
+#+end_src
+
+* Package Configuration
+** =auctex=
+#+begin_src emacs-lisp
+  (use-package tex
+    :ensure auctex
+    :mode ("\\.tex\\'" . TeX-tex-mode)
+    :config
+    (setopt TeX-parse-self t)
+    (setopt TeX-auto-save t)
+    (setopt TeX-engine 'luatex)
+    (setopt TeX-view-program-selection '((output-pdf "PDF Tools")))
+    (setopt TeX-master nil))
+#+end_src
+
+** =auth-source-pass=
+#+begin_src emacs-lisp
+  (use-package auth-source-pass
+    :hook (after-init . auth-source-pass-enable))
+#+end_src
+
+** =autorevert=
+#+begin_src emacs-lisp
+  (use-package autorevert
+    :hook (after-init . global-auto-revert-mode))
+#+end_src
+
+** =avy=
+#+begin_src emacs-lisp
+  (use-package avy
+    :bind ("M-g j" . avy-goto-char-timer))
+#+end_src
+
+** =beacon=
+#+begin_src emacs-lisp
+  (use-package beacon
+    :hook (after-init . beacon-mode))
+#+end_src
+
+** =c-ts-mode=
+#+begin_src emacs-lisp
+  (use-package c-ts-mode
+    :when (and (treesit-language-available-p 'c)
+               (treesit-language-available-p 'cpp))
+    :defer t
+    :init
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c-mode #'c-ts-mode))
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c++-mode #'c++-ts-mode))
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c-or-c++-mode #'c-or-c++-ts-mode)))
+#+end_src
+
+** =cape=
+#+begin_src emacs-lisp
+  (use-package cape
+    :bind ("C-c p" . cape-prefix-map)
+    :init
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-elisp-symbol)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-keyword))
+#+end_src
+
+** =consult=
+#+begin_src emacs-lisp
+  (use-package consult
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings in `goto-map'
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings in `search-map'
+           ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+    :init
+    ;; Optionally configure the register formatting. This improves the register
+    ;; preview for `consult-register', `consult-register-load',
+    ;; `consult-register-store' and the Emacs built-ins.
+    (setopt register-preview-delay 0.5)
+    (setq register-preview-function #'consult-register-format)
+
+    ;; Optionally tweak the register preview window.
+    ;; This adds thin lines, sorting and hides the mode line of the window.
+    (advice-add #'register-preview :override #'consult-register-window)
+
+    ;; Use Consult to select xref locations with preview
+    (setopt xref-show-xrefs-function #'consult-xref)
+    (setopt xref-show-definitions-function #'consult-xref)
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+    (setopt consult-narrow-key "<") ;; "C-+"
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize consult-theme :preview-key '(:debounce 0.2 any)
+                       consult-ripgrep consult-git-grep consult-grep
+                       consult-bookmark consult-recent-file consult-xref
+                       consult--source-bookmark consult--source-file-register
+                       consult--source-recent-file consult--source-project-recent-file
+                       ;; :preview-key "M-."
+                       :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+  )
+#+end_src
+
+** =corfu=
+#+begin_src emacs-lisp
+  (use-package corfu
+    :bind (:map corfu-map
+                ("RET" . corfu-send))
+    :hook (after-init . global-corfu-mode)
+    :preface
+    (defun my-corfu-set-up-eshell ()
+      (setq-local corfu-auto nil)
+      (corfu-mode))
+    :init
+    (add-hook 'eshell-mode-hook #'my-corfu-set-up-eshell)
+    :config
+    (setopt tab-always-indent 'complete))
+#+end_src
+
+** =cus-edit=
+#+begin_src emacs-lisp
+  (use-package cus-edit
+    :commands customize
+    :config
+    (setopt custom-file (expand-file-name "custom.el" user-emacs-directory)))
+#+end_src
+
+** =ddskk=
+#+begin_src emacs-lisp
+  (use-package skk
+    :bind ("C-x j" . skk-mode)
+    :hook ((isearch-mode . skk-isearch-setup-maybe)
+           (isearch-mode-end . skk-isearch-cleanup-maybe))
+    :preface
+    (defun skk-isearch-setup-maybe ()
+      (require 'skk-vars)
+      (when (or (eq skk-isearch-mode-enable 'always)
+                (and (boundp 'skk-mode)
+                     skk-mode
+                     skk-isearch-mode-enable))
+        (skk-isearch-mode-setup)))
+
+    (defun skk-isearch-cleanup-maybe ()
+      (require 'skk-vars)
+      (when (and (featurep 'skk-isearch)
+                 skk-isearch-mode-enable)
+        (skk-isearch-mode-cleanup)))
+    :config
+    (setopt skk-user-directory (expand-file-name "skk" user-emacs-directory))
+    (setopt skk-large-jisyo "@skkDict@/share/skk/SKK-JISYO.L")
+    (setopt skk-egg-like-newline t)
+    (setopt skk-delete-implies-kakutei nil)
+    (setopt skk-status-indicator 'minor-mode)
+    (setopt skk-isearch-mode-enable t))
+#+end_src
+
+** =dired=
+#+begin_src emacs-lisp
+  (use-package dired
+    :bind ("C-x d" . dired))
+#+end_src
+
+** =display-line-numbers=
+#+begin_src emacs-lisp
+  (use-package display-line-numbers
+    :hook ((conf-mode . display-line-numbers-mode)
+           (prog-mode . display-line-numbers-mode))
+    :config
+    (setopt display-line-numbers-type 'relative))
+#+end_src
+
+** =eat=
+#+begin_src emacs-lisp
+  (use-package eat
+    :hook (eshell-load . eat-eshell-mode))
+#+end_src
+
+** =eglot=
+#+begin_src emacs-lisp
+  (use-package eglot
+    :commands eglot
+    :config
+    (setopt eglot-autoshutdown t)
+    (add-to-list 'eglot-server-programs
+                 (cons (list 'nix-mode 'nix-ts-mode)
+                       (list "nixd")))
+    (add-to-list 'eglot-server-programs
+                 (cons 'web-svelte-mode
+                       (list "svelteserver" "--stdio"))))
+#+end_src
+
+** =elec-pair=
+#+begin_src emacs-lisp
+  (use-package elec-pair
+    :hook ((conf-mode . electric-pair-local-mode)
+           (prog-mode . electric-pair-local-mode)))
+#+end_src
+
+** =ellama=
+#+begin_src emacs-lisp
+  (use-package ellama
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :config
+    (require 'llm-openai)
+    (require 'llm-gemini)
+    (setopt ellama-fill-paragraphs nil)
+    (setopt ellama-providers
+            (list (cons "open-mistral-nemo"
+                        (make-llm-openai-compatible
+                         :key (lookup-password "api.mistral.ai" "emacs" 443)
+                         :url "https://api.mistral.ai/v1/"
+                         :chat-model "open-mistral-nemo"))
+                  (cons "gemini-1.5-flash-8b"
+                        (make-llm-gemini
+                         :key (lookup-password "generativelanguage.googleapis.com" "emacs" 443)
+                         :chat-model "gemini-1.5-flash-8b")))))
+#+end_src
+
+** =embark=
+#+begin_src emacs-lisp
+  (use-package embark
+    :bind (("C-." . embark-act)
+           ("C-h b" . embark-bindings))
+    :init
+    (setopt prefix-help-command #'embark-prefix-help-command)
+    :config
+    (setopt embark-help-key "?")
+    (setopt embark-indicators (list #'embark-minimal-indicator
+                                    #'embark-highlight-indicator
+                                    #'embark-isearch-highlight-indicator))
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
+#+end_src
+
+** =embark-consult=
+#+begin_src emacs-lisp
+  (use-package embark-consult
+    :after (embark consult)
+    :init
+    (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
+#+end_src
+
+** =ement=
+#+begin_src emacs-lisp
+  (use-package ement
+    :commands ement-connect
+    :config
+    (setopt ement-save-sessions t))
+#+end_src
+
+** =envrc=
+#+begin_src emacs-lisp
+  (use-package envrc
+    :hook (after-init . envrc-global-mode))
+#+end_src
+
+** =epg=
+#+begin_src emacs-lisp
+  (use-package epg
+    :defer t
+    :config
+    (setopt epg-pinentry-mode 'loopback))
+#+end_src
+
+** =eshell=
+#+begin_src emacs-lisp
+  (use-package eshell
+    :commands eshell
+    :preface
+    (defun eshell-reset-scroll-margin ()
+      (setq-local scroll-margin 0))
+    :init
+    (add-hook 'eshell-mode-hook #'eshell-reset-scroll-margin))
+#+end_src
+
+** =exec-path-from-shell=
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :when (daemonp)
+    :hook (after-init . exec-path-from-shell-initialize)
+    :config
+    (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK"))
+#+end_src
+
+** =flymake=
+#+begin_src emacs-lisp
+  (use-package flymake
+    :commands flymake-mode
+    :config
+    (setopt flymake-indicator-type 'margins)
+    (setopt flymake-margin-indicator-position 'right-margin))
+#+end_src
+
+** =flymake-ruff=
+#+begin_src emacs-lisp
+  (use-package flymake-ruff
+    :hook (eglot-managed-mode . flymake-ruff-load))
+#+end_src
+
+** =gdb-mi=
+#+begin_src emacs-lisp
+  (use-package gdb-mi
+    :commands gdb
+    :config
+    (setopt gdb-show-main t))
+#+end_src
+
+** =haskell-mode=
+#+begin_src emacs-lisp
+  (use-package haskell-mode
+    :mode "\\.hs\\'"
+    :config
+    (setopt haskell-stylish-on-save t))
+#+end_src
+
+** =hl-line=
+#+begin_src emacs-lisp
+  (use-package hl-line
+    :hook (dired-mode . hl-line-mode)
+    :preface
+    (defun my-hide-hl-line-on-mark-activation ()
+      (when (bound-and-true-p hl-line-mode)
+        (setq-local my-hl-line-active-p t)
+        (hl-line-mode -1)))
+
+    (defun my-restore-hl-line-on-mark-deactivation ()
+      (when (bound-and-true-p my-hl-line-active-p)
+        (hl-line-mode)))
+    :init
+    (add-hook 'activate-mark-hook
+              #'my-hide-hl-line-on-mark-activation)
+
+    (add-hook 'deactivate-mark-hook
+              #'my-restore-hl-line-on-mark-deactivation)
+    :config
+    (setopt hl-line-sticky-flag nil))
+#+end_src
+
+** =jinx=
+#+begin_src emacs-lisp
+  (use-package jinx
+    :bind ("M-$" . jinx-correct)
+    :hook (text-mode . jinx-mode)
+    :config
+    (setopt jinx-languages "en_GB en_US"))
+#+end_src
+
+** =llm=
+#+begin_src emacs-lisp
+  (use-package llm
+    :defer t
+    :config
+    (setopt llm-warn-on-nonfree nil))
+#+end_src
+
+** =magit=
+#+begin_src emacs-lisp
+  (use-package magit
+    :bind ("C-x g" . magit-status))
+#+end_src
+
+** =marginalia=
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :hook (after-init . marginalia-mode))
+#+end_src
+
+** =markdown-mode=
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :mode (("\\.md\\'" . markdown-mode)
+           ("README\\.md\\\'" . gfm-mode))
+    :bind (:repeat-map markdown-outline-repeat-map
+                       ("n" . markdown-outline-next)
+                       ("p" . markdown-outline-previous))
+    :init
+    (add-hook 'markdown-mode-hook #'variable-pitch-mode))
+#+end_src
+
+** =midnight=
+#+begin_src emacs-lisp
+  (use-package midnight
+    :when (daemonp)
+    :hook (after-init . midnight-mode))
+#+end_src
+
+** =nix-mode=
+#+begin_src emacs-lisp
+  (use-package nix-mode
+    :mode "\\.nix\\'")
+#+end_src
+
+** =nix-ts-mode=
+#+begin_src emacs-lisp
+  (use-package nix-ts-mode
+    :when (treesit-language-available-p 'nix)
+    :defer t
+    :init
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'nix-mode #'nix-ts-mode)))
+#+end_src
+
+** =nov=
+#+begin_src emacs-lisp
+  (use-package nov
+    :mode ("\\.epub\\'" . nov-mode))
+#+end_src
+
+** =olivetti=
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :commands olivetti-mode
+    :bind (:repeat-map olivetti-change-body-width-repeat-map
+                       ("{" . olivetti-shrink)
+                       ("}" . olivetti-expand)))
+#+end_src
+
+** =orderless=
+#+begin_src emacs-lisp
+  (use-package orderless
+    :config
+    (setopt completion-styles '(orderless basic))
+    (setopt completion-category-defaults nil)
+    (setopt completion-category-overrides
+            '((eglot (styles orderless))
+              (eglot-capf (styles orderless)))))
+#+end_src
+
+** =org=
+#+begin_src emacs-lisp
+  (use-package org
+    :mode ("\\.org\\'" . org-mode)
+    :bind ((:repeat-map org-visible-heading-repeat-map
+                        ("n" . org-next-visible-heading)
+                        ("p" . org-previous-visible-heading))
+           (:repeat-map org-todo-repeat-map
+                        ("t" . org-todo)))
+    :init
+    (add-hook 'org-mode-hook #'variable-pitch-mode)
+    :config
+    (setopt org-hide-emphasis-markers t)
+    (setopt org-agenda-files (list org-directory))
+    (setopt org-default-notes-file (expand-file-name "notes.org" org-directory)))
+#+end_src
+
+** =org-agenda=
+#+begin_src emacs-lisp
+  (use-package org-agenda
+    :bind ("C-c a" . org-agenda)
+    :config
+    (setopt org-agenda-tags-column 0)
+    (setopt org-agenda-block-separator ?─)
+    (setopt org-agenda-time-grid
+            '((daily today require-timed)
+              (800 1000 1200 1400 1600 1800 2000)
+              " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+    (setopt  org-agenda-current-time-string
+             "◀── now ─────────────────────────────────────────────────"))
+#+end_src
+
+** =org-appear=
+#+begin_src emacs-lisp
+  (use-package org-appear
+    :hook (org-mode . org-appear-mode)
+    :config
+    (setopt org-appear-autoemphasis t)
+    (setopt org-appear-autolinks t)
+    (setopt org-appear-autosubmarkers t)
+    (setopt org-appear-autoentities t)
+    (setopt org-appear-autokeywords t)
+    (setopt org-appear-inside-latex t))
+#+end_src
+
+** =org-babel=
+#+begin_src emacs-lisp
+  (use-package ob
+    :after org
+    :config
+    (setopt org-plantuml-jar-path "@plantuml@/plantuml.jar")
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (haskell . t)
+       (plantuml . t)
+       (python . t)
+       (shell . t))))
+#+end_src
+
+** =org-capture=
+#+begin_src emacs-lisp
+  (use-package org-capture
+    :bind ("C-c c" . org-capture)
+    :config
+    (setopt org-capture-templates
+            `(("t" "Todo" entry (file ,(expand-file-name "todos.org" org-directory))
+               "* TODO %^{Title}"
+               :empty-lines 1))))
+#+end_src
+
+** =org-modern=
+#+begin_src emacs-lisp
+  (use-package org-modern
+    :hook ((org-mode . org-modern-mode)
+           (org-agenda-finalize . org-modern-agenda))
+    :config
+    (setopt org-modern-star 'replace))
+#+end_src
+
+** =org-roam=
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :bind (("C-c n f" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)))
+#+end_src
+
+** =paren=
+#+begin_src emacs-lisp
+  (use-package paren
+    :hook ((conf-mode . show-paren-local-mode)
+           (prog-mode . show-paren-local-mode))
+    :config
+    (setopt show-paren-context-when-offscreen 'overlay))
+#+end_src
+
+** =pdf-tools=
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :magic ("%PDF" . pdf-view-mode)
+    :config
+    (pdf-loader-install))
+#+end_src
+
+** =pixel-scroll=
+#+begin_src emacs-lisp
+  (use-package pixel-scroll
+    :when (display-graphic-p)
+    :hook (after-init . pixel-scroll-precision-mode))
+#+end_src
+
+** =project=
+#+begin_src emacs-lisp
+  (use-package project
+    :bind-keymap ("C-x p" . project-prefix-map)
+    :config
+    (setopt project-vc-extra-root-markers
+            (list "*.cabal"
+                  ".dir-locals.el"
+                  "CMakeLists.txt"
+                  "Cargo.toml"
+                  "flake.nix"
+                  "package.json"
+                  "pyproject.toml"
+                  "requirements.txt"
+                  "stack.yaml")))
+#+end_src
+
+** =python=
+#+begin_src emacs-lisp
+  (use-package python
+    :mode ("\\.py\\'" . python-mode)
+    :init
+    (when (treesit-language-available-p 'python)
+      (add-to-list 'major-mode-remap-alist
+                   (cons 'python-mode #'python-ts-mode)))
+    :config
+    (setopt python-indent-guess-indent-offset-verbose nil))
+#+end_src
+
+** =recentf=
+#+begin_src emacs-lisp
+  (use-package recentf
+    :hook (after-init . recentf-mode))
+#+end_src
+
+** =repeat=
+#+begin_src emacs-lisp
+  (use-package repeat
+    :hook (after-init . repeat-mode))
+#+end_src
+
+** =ruff-format=
+#+begin_src emacs-lisp
+  (use-package ruff-format
+    :hook ((python-mode . ruff-format-on-save-mode)
+           (python-ts-mode . ruff-format-on-save-mode)))
+#+end_src
+
+** =rust-mode=
+#+begin_src emacs-lisp
+  (use-package rust-mode
+    :mode "\\.rs\\'"
+    :config
+    (setopt rust-format-on-save t)
+    (setopt rust-mode-treesitter-derive t))
+#+end_src
+
+** =savehist=
+#+begin_src emacs-lisp
+  (use-package savehist
+    :hook (after-init . savehist-mode))
+#+end_src
+
+** =tempel=
+#+begin_src emacs-lisp
+  (use-package tempel
+    :bind (("M-+" . tempel-complete)
+           ("M-*" . tempel-insert))
+    :hook ((conf-mode . tempel-setup-capf)
+           (prog-mode . tempel-setup-capf)
+           (text-mode . tempel-setup-capf))
+    :preface
+    ;; Setup completion at point
+    (defun tempel-setup-capf ()
+      ;; Add the Tempel Capf to `completion-at-point-functions'.
+      ;; `tempel-expand' only triggers on exact matches. Alternatively use
+      ;; `tempel-complete' if you want to see all matches, but then you
+      ;; should also configure `tempel-trigger-prefix', such that Tempel
+      ;; does not trigger too often when you don't expect it. NOTE: We add
+      ;; `tempel-expand' *before* the main programming mode Capf, such
+      ;; that it will be tried first.
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-complete
+                        completion-at-point-functions)))
+    :config
+    (setopt tempel-path "@templates@/*.eld")
+    (setopt tempel-trigger-prefix ","))
+#+end_src
+
+** =transient=
+#+begin_src emacs-lisp
+  (use-package transient
+    :config
+    (setopt transient-mode-line-format '(" ")))
+#+end_src
+
+** =treesit-fold=
+#+begin_src emacs-lisp
+  (use-package treesit-fold
+    :bind (("C-c t o" . treesit-fold-open)
+           ("C-c t c" . treesit-fold-close)))
+#+end_src
+
+** =typescript-ts-mode=
+#+begin_src emacs-lisp
+  (use-package typescript-ts-mode
+    :when (and (treesit-language-available-p 'typescript)
+               (treesit-language-available-p 'tsx))
+    :mode (("\\.ts\\'" . typescript-ts-mode)
+           ("\\.tsx\\'" . tsx-mode-mode)))
+#+end_src
+
+** =valign=
+#+begin_src emacs-lisp
+  (use-package valign
+    :hook (org-mode . valign-mode))
+#+end_src
+
+** =vertico=
+#+begin_src emacs-lisp
+  (use-package vertico
+    :hook (after-init . vertico-mode))
+#+end_src
+
+** =vundo=
+#+begin_src emacs-lisp
+  (use-package vundo
+    :bind ("C-x u" . vundo)
+    :preface
+    (defun vundo-hide-header-line ()
+      (setq header-line-format nil))
+    :init
+    (add-hook 'vundo-mode-hook #'vundo-hide-header-line))
+#+end_src
+
+** =web-mode=
+#+begin_src emacs-lisp
+  (use-package web-mode
+    :mode (("\\.jinja\\'" . web-mode)
+           ("\\.svelte\\'" . web-svelte-mode))
+    :preface
+    (define-derived-mode web-svelte-mode web-mode "Svelte"
+      "Major mode for editing Svelte files"))
+#+end_src
+
+** =wgrep=
+#+begin_src emacs-lisp
+  (use-package wgrep
+    :bind (:map grep-mode-map
+                ("e" . wgrep-change-to-wgrep-mode)))
+#+end_src
+
+** =whitespace-cleanup-mode=
+#+begin_src emacs-lisp
+  (use-package whitespace-cleanup-mode
+    :hook ((conf-mode . whitespace-cleanup-mode)
+           (prog-mode . whitespace-cleanup-mode)
+           (text-mode . whitespace-cleanup-mode)))
+#+end_src
+
+** =windmove=
+#+begin_src emacs-lisp
+  (use-package windmove
+    :bind (("S-<up>" . windmove-up)
+           ("S-<right>" . windmove-right)
+           ("S-<down>" . windmove-down)
+           ("S-<left>" . windmove-left)))
+#+end_src
+
+** =yaml-mode=
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+    :mode "\\.ya?ml\\'")
+#+end_src
+
+* Apply additional customisations from ~custom-file~
+#+begin_src emacs-lisp
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+end_src
