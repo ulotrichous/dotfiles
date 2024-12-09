@@ -4,13 +4,13 @@
   imports = [
     "${modulesPath}/profiles/locales.nix"
     "${modulesPath}/profiles/nix-path.nix"
+
+    ./modules/direnv.nix
   ];
 
   documentation.enable = true;
 
   programs.bash.enable = true;
-
-  programs.direnv.enable = true;
 
   programs.git = {
     enable = true;
