@@ -548,7 +548,8 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :when (daemonp)
     :hook (after-init . exec-path-from-shell-initialize)
     :config
-    (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK"))
+    (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK")
+    (add-to-list 'exec-path-from-shell-variables "XDG_DATA_DIRS"))
 #+end_src
 
 ** =flymake=
