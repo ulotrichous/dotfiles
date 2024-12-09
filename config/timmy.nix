@@ -27,9 +27,12 @@
     package = pkgs.nix-index-with-db;
   };
 
-  environment.loginShellInit = ''
+  environment.extraInit = ''
     export PATH="$HOME/.local/bin:$PATH"
     export MANPATH="$HOME/.nix-profile/share/man:/usr/share/man"
+  '';
+
+  environment.loginShellInit = ''
     export PASSWORD_STORE_DIR="$OneDrive/secrets/password-store"
   '';
 
