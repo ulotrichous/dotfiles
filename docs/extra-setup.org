@@ -72,9 +72,9 @@ definitely more annoying than the popups.
   pinentry-mode loopback
 #+end_src
 
-* Use Huspell dictionaries for English in Enchant
+* Use Aspell for English in Enchant
 #+begin_src conf :tangle .config/enchant/enchant.ordering
-  *:hunspell
+  en:aspell
 #+end_src
 
 * Run Emacs as a daemon

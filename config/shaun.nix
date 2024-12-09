@@ -5,6 +5,7 @@
     "${modulesPath}/profiles/locales.nix"
     "${modulesPath}/profiles/nix-path.nix"
 
+    ./modules/aspell.nix
     ./modules/direnv.nix
   ];
 
@@ -59,11 +60,8 @@
     gnugrep
     gnupg
     helix
-    hunspellDicts.en_GB-ise
-    hunspellDicts.en_US
     inkscape
     mpv
-    nuspell
     pass-wayland
     pinentry-qt
     pipx

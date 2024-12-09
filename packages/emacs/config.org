@@ -554,7 +554,8 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :hook (after-init . exec-path-from-shell-initialize)
     :config
     (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK")
-    (add-to-list 'exec-path-from-shell-variables "XDG_DATA_DIRS"))
+    (add-to-list 'exec-path-from-shell-variables "XDG_DATA_DIRS")
+    (add-to-list 'exec-path-from-shell-variables "ASPELL_CONF"))
 #+end_src
 
 ** =flymake=
@@ -617,7 +618,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :bind ("M-$" . jinx-correct)
     :hook (text-mode . jinx-mode)
     :config
-    (setopt jinx-languages "en_GB en_US"))
+    (setopt jinx-languages "en"))
 #+end_src
 
 ** =llm=

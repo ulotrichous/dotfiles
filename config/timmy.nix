@@ -5,6 +5,7 @@
     "${modulesPath}/profiles/locales.nix"
     "${modulesPath}/profiles/nix-path.nix"
 
+    ./modules/aspell.nix
     ./modules/direnv.nix
   ];
 
@@ -49,10 +50,7 @@
     gdb
     gnupg
     helix
-    hunspellDicts.en_GB-ise
-    hunspellDicts.en_US
     jq
-    nuspell
     pass
     pipx
     ripgrep
