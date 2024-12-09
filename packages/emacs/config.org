@@ -124,7 +124,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 
   (setq-default header-line-format
                 '("%e"
-                  (:eval (buffer-name))))
+                  (:eval (when (and (buffer-file-name)
+                                    (buffer-modified-p))
+                           "*"))
+                  (:eval (format "%s " (buffer-name)))
+                  (:eval (when (file-remote-p default-directory)
+                           (format "(%s) " (file-remote-p default-directory 'host))))))
 
   (defun my-update-mode-line ()
     (dolist (window (window-list))
