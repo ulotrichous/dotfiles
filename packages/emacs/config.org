@@ -135,8 +135,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
            '((fringe unspecified)
              (fg-region unspecified)
              (bg-region bg-lavender)
-             (bg-mode-line-active unpsecified)
-             (bg-mode-line-inactive unpsecified)
              (bg-line-number-active unspecified)
              (bg-line-number-inactive unspecified)
              (bg-prose-block-contents unspecified)
@@ -146,10 +144,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
      (modus-themes-with-colors
        (custom-set-faces
         '(region ((t :extend nil)))
-        `(mode-line ((t :box nil)))
-        `(mode-line-inactive ((t :box nil)))
-        `(header-line ((,c :background ,bg-inactive
-                           :box (:line-width (10 . 4) :color ,bg-inactive))))
+        `(mode-line ((,c :background ,bg-main
+                         :box nil)))
+        `(mode-line-inactive ((,c :background ,bg-main
+                                  :box nil)))
+        `(header-line ((,c :background ,bg-mode-line-inactive
+                           :box (:line-width (10 . 4) :color ,bg-mode-line-inactive))))
         `(window-divider ((,c :foreground ,border))))))
 
    (add-hook 'modus-themes-after-load-theme-hook
