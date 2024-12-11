@@ -74,7 +74,7 @@
 ** Set up fonts
 https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp
-  (defun setup-fonts ()
+  (defun my-setup-fonts ()
     (interactive)
     (set-face-attribute 'default nil :family "Iosevka" :height 140)
     (set-fontset-font t 'japanese-jisx0213.2004-1 "Sarasa Mono J")
@@ -95,7 +95,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 
   (if (not (daemonp))
       (setup-fonts)
-    (add-hook 'server-after-make-frame-hook #'setup-fonts))
+    (add-hook 'server-after-make-frame-hook #'my-setup-fonts))
 #+end_src
 
 ** Load =use-package=
@@ -111,16 +111,9 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (scroll-bar-mode -1)
 #+end_src
 
-** Add padding between windows
-#+begin_src emacs-lisp
-  (modify-all-frames-parameters
-   '((internal-border-width . 15)
-     (right-divider-width . 15)))
-#+end_src
-
 ** Mode line and header line
 #+begin_src emacs-lisp
-  (setq-default mode-line-format 'nil)
+  (setq-default mode-line-format nil)
 
   (setq-default header-line-format
                 '("%e"
@@ -130,53 +123,9 @@ https://archive.casouri.cc/note/2021/fontset/index.html
                   (:eval (format "%s " (buffer-name)))
                   (:eval (when (file-remote-p default-directory)
                            (format "(%s) " (file-remote-p default-directory 'host))))))
-
-  (defun my-update-mode-line ()
-    (dolist (window (window-list))
-      (let* ((window-below
-              (window-in-direction 'below window))
-             (buffer-below
-              (and window-below
-                   (window-buffer window-below)))
-             (header-line-below
-              (and buffer-below
-                   (buffer-local-value 'header-line-format buffer-below))))
-        (set-window-parameter window 'mode-line-format
-                              (cond ((minibufferp buffer-below) (list " "))
-                                    (header-line-below nil)
-                                    (t (list " ")))))))
-
-  (add-hook 'window-configuration-change-hook #'my-update-mode-line)
 #+end_src
 
-** Customise the mode line
-#+begin_src emacs-lisp :tangle no
-  (setopt mode-line-format
-          '("%e"
-            (:eval (when (file-remote-p default-directory)
-                     (format "[%s] " (file-remote-p default-directory 'host))))
-            (:eval (when (and (buffer-file-name) (buffer-modified-p) "*")))
-            (:eval (format "%s " (propertize (buffer-name) 'face 'bold)))
-            (:eval (when (buffer-narrowed-p)
-                     (format "(narrow) ")))
-            " %l:%c"
-
-            mode-line-format-right-align
-
-            (:eval (when skk-mode
-                     (cond (skk-latin-mode "ASCII  ")
-                           (skk-jisx0208-latin-mode "全英  ")
-                           (skk-katakana "カナ  ")
-                           (t "かな  "))))
-            (:eval (when flymake-mode
-                     (format "%s  "
-                             (format-mode-line flymake-mode-line-counters))))
-            (:eval (when vc-mode
-                     (format "%s  " (string-trim vc-mode))))
-            (:eval (format "%s" (format-mode-line mode-name)))))
-#+end_src
-
-** Tweak =modus-themes=
+** Enable =modus-themes=
  #+begin_src emacs-lisp
    (require-theme 'modus-themes)
 
@@ -186,6 +135,8 @@ https://archive.casouri.cc/note/2021/fontset/index.html
            '((fringe unspecified)
              (fg-region unspecified)
              (bg-region bg-lavender)
+             (bg-mode-line-active unpsecified)
+             (bg-mode-line-inactive unpsecified)
              (bg-line-number-active unspecified)
              (bg-line-number-inactive unspecified)
              (bg-prose-block-contents unspecified)
@@ -195,27 +146,24 @@ https://archive.casouri.cc/note/2021/fontset/index.html
      (modus-themes-with-colors
        (custom-set-faces
         '(region ((t :extend nil)))
-        `(mode-line ((,c :height 0.1
-                         :foreground ,border
-                         :background ,bg-main
-                         :overline t
-                         :box nil)))
-        `(mode-line-inactive ((,c :height 0.1
-                                  :foreground ,border
-                                  :background ,bg-main
-                                  :overline t
-                                  :box nil)))
-        `(header-line ((,c :background ,bg-mode-line-inactive
-                           :box (:line-width (10 . 4) :color ,bg-mode-line-inactive)
-                           :inherit variable-pitch)))
-        `(window-divider ((,c :foreground ,bg-main)))
-        `(window-divider-first-pixel ((,c :foreground ,bg-main)))
-        `(window-divider-last-pixel ((,c :foreground ,bg-main))))))
+        `(mode-line ((t :box nil)))
+        `(mode-line-inactive ((t :box nil)))
+        `(header-line ((,c :background ,bg-inactive
+                           :box (:line-width (10 . 4) :color ,bg-inactive))))
+        `(window-divider ((,c :foreground ,border))))))
 
    (add-hook 'modus-themes-after-load-theme-hook
              #'modus-themes-set-custom-faces)
 
    (modus-themes-load-theme 'modus-operandi)
+#+end_src
+
+** Draw separators between windows
+#+begin_src emacs-lisp
+  (setopt window-divider-default-places t)
+  (setopt window-divider-default-right-width 2)
+  (setopt window-divider-default-bottom-width 2)
+  (window-divider-mode)
 #+end_src
 
 * Package Configuration
@@ -541,10 +489,10 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (use-package eshell
     :commands eshell
     :preface
-    (defun eshell-reset-scroll-margin ()
+    (defun my-eshell-reset-scroll-margin ()
       (setq-local scroll-margin 0))
     :init
-    (add-hook 'eshell-mode-hook #'eshell-reset-scroll-margin))
+    (add-hook 'eshell-mode-hook #'my-eshell-reset-scroll-margin))
 #+end_src
 
 ** =exec-path-from-shell=
@@ -685,7 +633,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 ** =olivetti=
 #+begin_src emacs-lisp
   (use-package olivetti
-    :commands olivetti-mode
+    :hook (org-mode . olivetti-mode)
     :bind (:repeat-map olivetti-change-body-width-repeat-map
                        ("{" . olivetti-shrink)
                        ("}" . olivetti-expand)))
@@ -906,7 +854,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp
   (use-package transient
     :config
-    (setopt transient-mode-line-format '(" ")))
+    (setopt transient-mode-line-format nil))
 #+end_src
 
 ** =treesit-fold=
@@ -942,10 +890,10 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (use-package vundo
     :bind ("C-x u" . vundo)
     :preface
-    (defun vundo-hide-header-line ()
+    (defun my-vundo-hide-header-line ()
       (setq header-line-format nil))
     :init
-    (add-hook 'vundo-mode-hook #'vundo-hide-header-line))
+    (add-hook 'vundo-mode-hook #'my-vundo-hide-header-line))
 #+end_src
 
 ** =web-mode=
