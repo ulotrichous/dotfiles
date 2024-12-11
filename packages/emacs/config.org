@@ -846,8 +846,10 @@ https://archive.casouri.cc/note/2021/fontset/index.html
                   (cons #'tempel-complete
                         completion-at-point-functions)))
     :config
-    (setopt tempel-path "@templates@/*.eld")
-    (setopt tempel-trigger-prefix ","))
+    (setopt tempel-trigger-prefix "<")
+    (setopt tempel-path
+            (list "@templates@/*.eld"
+                  (expand-file-name "templates" user-emacs-directory))))
 #+end_src
 
 ** =transient=
