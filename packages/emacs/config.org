@@ -94,7 +94,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
       (set-face-attribute 'variable-pitch nil :fontset fontset)))
 
   (if (not (daemonp))
-      (setup-fonts)
+      (my-setup-fonts)
     (add-hook 'server-after-make-frame-hook #'my-setup-fonts))
 #+end_src
 
