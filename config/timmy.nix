@@ -33,9 +33,9 @@
     export MANPATH="$HOME/.nix-profile/share/man:/usr/share/man"
   '';
 
-  environment.loginShellInit = ''
-    export PASSWORD_STORE_DIR="$OneDrive/secrets/password-store"
-  '';
+  environment.variables = {
+    PASSWORD_STORE_DIR = "$OneDrive/secrets/password-store";
+  };
 
   environment.packages = with pkgs; [
     (emacs-with-packages.override {
