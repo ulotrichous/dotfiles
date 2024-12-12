@@ -149,7 +149,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
         `(mode-line-inactive ((,c :background ,bg-main
                                   :box nil)))
         `(header-line ((,c :background ,bg-mode-line-inactive
-                           :box (:line-width (10 . 4) :color ,bg-mode-line-inactive))))
+                           :box (:line-width (10 . 2) :color ,bg-mode-line-inactive))))
         `(window-divider ((,c :foreground ,border))))))
 
    (add-hook 'modus-themes-after-load-theme-hook
