@@ -529,6 +529,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt gdb-show-main t))
 #+end_src
 
+** =go-ts-mode=
+#+begin_src emacs-lisp
+  (use-package go-ts-mode
+    :mode "\\.go\\'")
+#+end_src
+
 ** =haskell-mode=
 #+begin_src emacs-lisp
   (use-package haskell-mode
