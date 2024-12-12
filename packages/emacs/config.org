@@ -134,7 +134,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
    (setopt modus-themes-common-palette-overrides
            '((fringe unspecified)
              (fg-region unspecified)
-             (bg-region bg-lavender)
+             (bg-region bg-ochre)
              (bg-line-number-active unspecified)
              (bg-line-number-inactive unspecified)
              (bg-prose-block-contents unspecified)
