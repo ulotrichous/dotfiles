@@ -1,5 +1,4 @@
 #+TITLE: Emacs Configuration
-#+PROPERTY: header-args :tangle default.el
 
 * Utilities
 #+begin_src emacs-lisp
@@ -367,7 +366,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
         (skk-isearch-mode-cleanup)))
     :config
     (setopt skk-user-directory (expand-file-name "skk" user-emacs-directory))
-    (setopt skk-large-jisyo "@skkDict@/share/skk/SKK-JISYO.L")
     (setopt skk-egg-like-newline t)
     (setopt skk-delete-implies-kakutei nil)
     (setopt skk-status-indicator 'minor-mode)
@@ -664,7 +662,14 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :config
     (setopt org-hide-emphasis-markers t)
     (setopt org-agenda-files (list org-directory))
-    (setopt org-default-notes-file (expand-file-name "notes.org" org-directory)))
+    (setopt org-default-notes-file (expand-file-name "notes.org" org-directory))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (haskell . t)
+       (plantuml . t)
+       (python . t)
+       (shell . t))))
 #+end_src
 
 ** =org-agenda=
@@ -693,21 +698,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt org-appear-autoentities t)
     (setopt org-appear-autokeywords t)
     (setopt org-appear-inside-latex t))
-#+end_src
-
-** =org-babel=
-#+begin_src emacs-lisp
-  (use-package ob
-    :after org
-    :config
-    (setopt org-plantuml-jar-path "@plantuml@/plantuml.jar")
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (haskell . t)
-       (plantuml . t)
-       (python . t)
-       (shell . t))))
 #+end_src
 
 ** =org-capture=
@@ -840,9 +830,11 @@ https://archive.casouri.cc/note/2021/fontset/index.html
                         completion-at-point-functions)))
     :config
     (setopt tempel-trigger-prefix "<")
-    (setopt tempel-path
-            (list "@templates@/*.eld"
-                  (expand-file-name "templates" user-emacs-directory))))
+    (when (nixp)
+      (unless (listp tempel-path)
+        (setq tempel-path (list tempel-path)))
+      (add-to-list 'tempel-path
+                   (expand-file-name "templates" user-emacs-directory))))
 #+end_src
 
 ** =transient=
