@@ -840,6 +840,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 ** =transient=
 #+begin_src emacs-lisp
   (use-package transient
+    :defer t
     :config
     (setopt transient-mode-line-format nil))
 #+end_src
