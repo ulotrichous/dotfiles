@@ -336,14 +336,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt tab-always-indent 'complete))
 #+end_src
 
-** =cus-edit=
-#+begin_src emacs-lisp
-  (use-package cus-edit
-    :commands customize
-    :config
-    (setopt custom-file (expand-file-name "custom.el" user-emacs-directory)))
-#+end_src
-
 ** =ddskk=
 #+begin_src emacs-lisp
   (use-package skk
@@ -926,6 +918,9 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 
 * Apply additional customisations from ~custom-file~
 #+begin_src emacs-lisp
+  (setq custom-file
+        (expand-file-name "custom.el" user-emacs-directory))
+
   (when (file-exists-p custom-file)
     (load custom-file))
 #+end_src
