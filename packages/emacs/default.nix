@@ -51,7 +51,6 @@ let
       ddskk
       dimmer
       envrc
-      flymake-ruff
       haskell-mode
       nix-mode
       nix-ts-mode
@@ -60,7 +59,6 @@ let
       org-appear
       org-roam
       pdf-tools
-      ruff-format
       web-mode
       wgrep
       whitespace-cleanup-mode

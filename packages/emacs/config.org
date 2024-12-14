@@ -516,12 +516,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt flymake-margin-indicator-position 'right-margin))
 #+end_src
 
-** =flymake-ruff=
-#+begin_src emacs-lisp
-  (use-package flymake-ruff
-    :hook (eglot-managed-mode . flymake-ruff-load))
-#+end_src
-
 ** =gdb-mi=
 #+begin_src emacs-lisp
   (use-package gdb-mi
@@ -807,13 +801,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp
   (use-package repeat
     :hook (after-init . repeat-mode))
-#+end_src
-
-** =ruff-format=
-#+begin_src emacs-lisp
-  (use-package ruff-format
-    :hook ((python-mode . ruff-format-on-save-mode)
-           (python-ts-mode . ruff-format-on-save-mode)))
 #+end_src
 
 ** =rust-mode=
