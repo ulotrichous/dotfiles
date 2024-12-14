@@ -51,7 +51,6 @@ let
       corfu
       ddskk
       default
-      dimmer
       eat
       ellama
       embark
