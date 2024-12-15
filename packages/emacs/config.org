@@ -97,33 +97,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (add-hook 'server-after-make-frame-hook #'my-setup-fonts))
 #+end_src
 
-** Load =use-package=
-#+begin_src emacs-lisp
-  (eval-when-compile
-    (require 'use-package))
-#+end_src
-
-** Remove unused UI elements
-#+begin_src emacs-lisp
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-#+end_src
-
-** Mode line and header line
-#+begin_src emacs-lisp
-  (setq-default mode-line-format nil)
-
-  (setq-default header-line-format
-                '("%e"
-                  (:eval (when (and (buffer-file-name)
-                                    (buffer-modified-p))
-                           "*"))
-                  (:eval (format "%s " (buffer-name)))
-                  (:eval (when (file-remote-p default-directory)
-                           (format "(%s) " (file-remote-p default-directory 'host))))))
-#+end_src
-
 ** Enable =modus-themes=
  #+begin_src emacs-lisp
    (require-theme 'modus-themes)
@@ -157,12 +130,41 @@ https://archive.casouri.cc/note/2021/fontset/index.html
    (modus-themes-load-theme 'modus-operandi)
 #+end_src
 
+** Remove unused UI elements
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+** Mode line and header line
+#+begin_src emacs-lisp
+  (setq-default mode-line-format nil)
+
+  (setq-default header-line-format
+                '("%e"
+                  (:eval (when (and (buffer-file-name)
+                                    (buffer-modified-p))
+                           "*"))
+                  (:eval (format "%s " (buffer-name)))
+                  (:eval (when (file-remote-p default-directory)
+                           (format "(%s) "
+                                   (file-remote-p default-directory
+                                                  'host))))))
+#+end_src
+
 ** Draw separators between windows
 #+begin_src emacs-lisp
   (setopt window-divider-default-places t)
   (setopt window-divider-default-right-width 2)
   (setopt window-divider-default-bottom-width 2)
   (window-divider-mode)
+#+end_src
+
+** Load =use-package=
+#+begin_src emacs-lisp
+  (eval-when-compile
+    (require 'use-package))
 #+end_src
 
 * Package Configuration
