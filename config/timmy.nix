@@ -34,6 +34,7 @@
   '';
 
   environment.variables = {
+    COLORTERM = "truecolor";
     PASSWORD_STORE_DIR = "$OneDrive/secrets/password-store";
   };
 
