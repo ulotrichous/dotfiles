@@ -894,7 +894,10 @@ https://archive.casouri.cc/note/2021/fontset/index.html
            ("\\.svelte\\'" . web-svelte-mode))
     :preface
     (define-derived-mode web-svelte-mode web-mode "Svelte"
-      "Major mode for editing Svelte files"))
+      "Major mode for editing Svelte files")
+    :config
+    (setopt web-mode-script-padding 2)
+    (setopt web-mode-style-padding 2))
 #+end_src
 
 ** =wgrep=
