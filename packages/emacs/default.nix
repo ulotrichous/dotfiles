@@ -51,6 +51,7 @@ let
       corfu
       ddskk
       default
+      dired-subtree
       eat
       ellama
       embark
