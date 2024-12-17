@@ -205,21 +205,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :hook (after-init . beacon-mode))
 #+end_src
 
-** =c-ts-mode=
-#+begin_src emacs-lisp
-  (use-package c-ts-mode
-    :when (and (treesit-language-available-p 'c)
-               (treesit-language-available-p 'cpp))
-    :defer t
-    :init
-    (add-to-list 'major-mode-remap-alist
-                 (cons 'c-mode #'c-ts-mode))
-    (add-to-list 'major-mode-remap-alist
-                 (cons 'c++-mode #'c++-ts-mode))
-    (add-to-list 'major-mode-remap-alist
-                 (cons 'c-or-c++-mode #'c-or-c++-ts-mode)))
-#+end_src
-
 ** =cape=
 #+begin_src emacs-lisp
   (use-package cape
@@ -336,6 +321,31 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (add-hook 'eshell-mode-hook #'my-corfu-set-up-eshell)
     :config
     (setopt tab-always-indent 'complete))
+#+end_src
+
+** =css-mode=
+#+begin_src emacs-lisp
+  (use-package css-mode
+    :mode "\\.css\\'"
+    :init
+    (when (treesit-language-available-p 'css)
+      (add-to-list 'major-mode-remap-alist
+                   (cons 'css-mode #'css-ts-mode))))
+#+end_src
+
+** =c-ts-mode=
+#+begin_src emacs-lisp
+  (use-package c-ts-mode
+    :when (and (treesit-language-available-p 'c)
+               (treesit-language-available-p 'cpp))
+    :defer t
+    :init
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c-mode #'c-ts-mode))
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c++-mode #'c++-ts-mode))
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'c-or-c++-mode #'c-or-c++-ts-mode)))
 #+end_src
 
 ** =ddskk=
@@ -559,6 +569,16 @@ https://archive.casouri.cc/note/2021/fontset/index.html
               #'my-restore-hl-line-on-mark-deactivation)
     :config
     (setopt hl-line-sticky-flag nil))
+#+end_src
+
+** =html-ts-mode=
+#+begin_src emacs-lisp
+  (use-package html-ts-mode
+    :when (treesit-language-available-p 'html)
+    :defer t
+    :init
+    (add-to-list 'major-mode-remap-alist
+                 (cons 'html-mode #'html-ts-mode)))
 #+end_src
 
 ** =jinx=
