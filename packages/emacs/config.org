@@ -455,7 +455,6 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :init
     (setopt prefix-help-command #'embark-prefix-help-command)
     :config
-    (setopt embark-help-key "?")
     (setopt embark-indicators (list #'embark-minimal-indicator
                                     #'embark-highlight-indicator
                                     #'embark-isearch-highlight-indicator))
