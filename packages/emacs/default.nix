@@ -38,6 +38,8 @@ let
                       'skk-large-jisyo "${skkDicts.L}/share/skk/SKK-JISYO.L"'
         '';
     });
+
+    typst-ts-mode = self.callPackage ./typst-ts-mode.nix { };
   };
 
   packages =
@@ -79,6 +81,7 @@ let
       tempel
       treesit-fold
       treesit-grammars.with-all-grammars
+      typst-ts-mode
       valign
       vertico
       vundo
