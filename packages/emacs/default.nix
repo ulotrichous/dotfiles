@@ -63,7 +63,6 @@ let
       exec-path-from-shell
       git-modes
       haskell-mode
-      hyperbole
       jinx
       magit
       marginalia
