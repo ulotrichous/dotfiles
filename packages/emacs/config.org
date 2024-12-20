@@ -702,7 +702,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (use-package org-agenda
     :bind ("C-c a" . org-agenda)
     :config
-    (setopt org-agenda-tags-column 0)
+    (setopt org-tags-column 0)
     (setopt org-agenda-block-separator ?─)
     (setopt org-agenda-time-grid
             '((daily today require-timed)
@@ -734,6 +734,17 @@ https://archive.casouri.cc/note/2021/fontset/index.html
             `(("t" "Todo" entry (file ,(expand-file-name "todos.org" org-directory))
                "* TODO %^{Title}"
                :empty-lines 1))))
+#+end_src
+
+** =org-contacts=
+#+begin_src emacs-lisp
+  (use-package org-contacts
+    :commands org-contacts
+    :config
+    (setopt org-contacts-files
+            (list (expand-file-name "contacts.org"
+                                    org-directory)))
+    (setopt org-contacts-birthday-format "Birthday: %l"))
 #+end_src
 
 ** =org-modern=

@@ -73,6 +73,7 @@ let
       olivetti
       orderless
       org-appear
+      org-contacts
       org-modern
       org-roam
       pdf-tools
