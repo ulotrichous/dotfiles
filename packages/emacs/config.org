@@ -525,7 +525,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :commands flymake-mode
     :config
     (setopt flymake-indicator-type 'margins)
-    (setopt flymake-margin-indicator-position 'right-margin))
+    (setopt flymake-margin-indicator-position 'left-margin))
 #+end_src
 
 ** =gdb-mi=
