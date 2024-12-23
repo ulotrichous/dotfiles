@@ -688,6 +688,9 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt org-hide-emphasis-markers t)
     (setopt org-agenda-files (list org-directory))
     (setopt org-default-notes-file (expand-file-name "notes.org" org-directory))
+    (setopt org-todo-keywords '((sequence "TODO" "IN PROGRESS"
+                                          "|"
+                                          "DONE" "CANCELLED")))
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((emacs-lisp . t)
