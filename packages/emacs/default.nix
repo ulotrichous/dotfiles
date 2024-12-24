@@ -78,6 +78,7 @@ let
       org-roam
       pdf-tools
       rust-mode
+      snow
       tempel
       treesit-fold
       treesit-grammars.with-all-grammars
