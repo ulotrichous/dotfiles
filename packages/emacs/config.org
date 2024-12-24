@@ -967,6 +967,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
            ("S-<left>" . windmove-left)))
 #+end_src
 
+** =winnder=
+#+begin_src emacs-lisp
+  (use-package winner
+    :hook (after-init . winner-mode))
+#+end_src
+
 ** =yaml-mode=
 #+begin_src emacs-lisp
   (use-package yaml-mode
