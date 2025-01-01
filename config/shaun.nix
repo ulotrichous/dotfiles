@@ -65,6 +65,7 @@
     pass-wayland
     pinentry-qt
     pipx
+    poweralertd
     ripgrep
     ruff
     shellcheck
