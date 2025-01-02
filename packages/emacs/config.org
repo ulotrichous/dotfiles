@@ -230,7 +230,8 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (use-package calendar
     :commands calendar
     :config
-    (setopt calendar-date-style 'iso))
+    (setopt calendar-date-style 'iso)
+    (setopt calendar-holidays holiday-other-holidays))
 #+end_src
 
 ** =cape=
@@ -609,6 +610,15 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :init
     (add-to-list 'major-mode-remap-alist
                  (cons 'html-mode #'html-ts-mode)))
+#+end_src
+
+** =japanese-holidays=
+#+begin_src emacs-lisp
+  (use-package japanese-holidays
+    :after calendar
+    :config
+    (setopt calendar-holidays
+            (append calendar-holidays japanese-holidays)))
 #+end_src
 
 ** =jinx=

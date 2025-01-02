@@ -64,6 +64,7 @@ let
       exec-path-from-shell
       git-modes
       haskell-mode
+      japanese-holidays
       jinx
       magit
       marginalia
