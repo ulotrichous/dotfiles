@@ -199,6 +199,26 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :bind ("M-g j" . avy-goto-char-timer))
 #+end_src
 
+** =bbdb=
+#+begin_src emacs-lisp
+  (use-package bbdb
+    :commands bbdb
+    :config
+    (add-to-list 'bbdb-legal-postcodes
+                 "^[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$")
+    (bbdb-initialize 'gnus 'message 'anniv))
+#+end_src
+
+** =bbdb-anniv=
+#+begin_src emacs-lisp
+  (use-package bbdb-anniv
+    :hook (diary-list-entries . bbdb-anniv-diary-entries)
+    :config
+    (setopt bbdb-anniv-alist
+            '((birthday . "%n's birthday")
+              (anniversary))))
+#+end_src
+
 ** =beacon=
 #+begin_src emacs-lisp
   (use-package beacon

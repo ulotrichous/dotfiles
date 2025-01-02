@@ -46,6 +46,7 @@ let
     epkgs: with epkgs; [
       auctex
       avy
+      bbdb
       beacon
       cape
       cmake-mode
