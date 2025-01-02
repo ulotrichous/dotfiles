@@ -225,6 +225,14 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     :hook (after-init . beacon-mode))
 #+end_src
 
+** =calendar=
+#+begin_src emacs-lisp
+  (use-package calendar
+    :commands calendar
+    :config
+    (setopt calendar-date-style 'iso))
+#+end_src
+
 ** =cape=
 #+begin_src emacs-lisp
   (use-package cape
