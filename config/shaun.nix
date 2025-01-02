@@ -61,6 +61,7 @@
     gnupg
     helix
     inkscape
+    iverilog
     mpv
     pass-wayland
     pinentry-qt
