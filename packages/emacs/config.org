@@ -733,6 +733,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
   (use-package org-agenda
     :bind ("C-c a" . org-agenda)
     :config
+    (setopt org-agenda-include-diary t)
     (setopt org-tags-column 0)
     (setopt org-agenda-block-separator ?─)
     (setopt org-agenda-time-grid
