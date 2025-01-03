@@ -405,6 +405,13 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt skk-isearch-mode-enable t))
 #+end_src
 
+** =diary-lib=
+#+begin_src emacs-lisp
+  (use-package diary-lib
+    :hook ((diary-list-entries . diary-include-other-diary-files)
+           (diary-mark-entries . diary-mark-included-diary-files)))
+#+end_src
+
 ** =dired=
 #+begin_src emacs-lisp
   (use-package dired
