@@ -229,6 +229,8 @@ https://archive.casouri.cc/note/2021/fontset/index.html
 #+begin_src emacs-lisp
   (use-package calendar
     :commands calendar
+    :init
+    (add-hook 'calendar-today-visible-hook 'calendar-mark-today)
     :config
     (setopt calendar-date-style 'iso)
     (setopt calendar-holidays holiday-other-holidays))
