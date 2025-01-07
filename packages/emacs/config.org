@@ -637,6 +637,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt jinx-languages "en"))
 #+end_src
 
+** =ledger-mode=
+#+begin_src emacs-lisp
+  (use-package ledger-mode
+    :mode "\\.ledger\\'")
+#+end_src
+
 ** =llm=
 #+begin_src emacs-lisp
   (use-package llm

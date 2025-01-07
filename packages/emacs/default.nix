@@ -66,6 +66,7 @@ let
       haskell-mode
       japanese-holidays
       jinx
+      ledger-mode
       magit
       marginalia
       markdown-mode
