@@ -62,6 +62,7 @@
     helix
     inkscape
     iverilog
+    ledger
     mpv
     pass-wayland
     pinentry-qt
