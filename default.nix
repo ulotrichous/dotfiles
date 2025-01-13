@@ -17,6 +17,7 @@ let
       overlays = [
         (import "${emacs-overlay}/overlays/package.nix")
         (import ./overlays/emacs-with-packages.nix)
+        (import ./overlays/firefox-with-custom-wrapper.nix)
         (import ./overlays/gitignore.nix)
         nix-index-database-overlay
       ];
