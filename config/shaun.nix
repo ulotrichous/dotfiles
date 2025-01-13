@@ -56,6 +56,7 @@
     fd
     ffmpeg
     findutils
+    firefox-with-custom-wrapper
     gdb
     gnugrep
     gnupg
