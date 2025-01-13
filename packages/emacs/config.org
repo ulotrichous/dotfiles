@@ -853,6 +853,7 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt project-vc-extra-root-markers
             (list "*.cabal"
                   ".dir-locals.el"
+                  ".envrc"
                   "CMakeLists.txt"
                   "Cargo.toml"
                   "flake.nix"
