@@ -4,6 +4,8 @@ let
   aspell = pkgs.aspellWithDicts (
     dicts: with dicts; [
       en
+      en-science
+      en-computers
     ]
   );
 in
