@@ -55,6 +55,7 @@ let
       ddskk
       default
       dired-subtree
+      dockerfile-mode
       eat
       ellama
       embark

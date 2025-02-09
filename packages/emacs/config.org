@@ -439,6 +439,12 @@ https://archive.casouri.cc/note/2021/fontset/index.html
     (setopt display-line-numbers-type 'relative))
 #+end_src
 
+** =dockerfile=mode=
+#+begin_src emacs-lisp
+  (use-package dockerfile-mode
+    :mode ("Dockerfile\\'" "Containerfile\\'"))
+#+end_src
+
 ** =eat=
 #+begin_src emacs-lisp
   (use-package eat
