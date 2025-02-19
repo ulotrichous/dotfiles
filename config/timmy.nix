@@ -54,6 +54,7 @@
     jq
     pass
     pipx
+    plantuml
     ripgrep
     ruff
     shellcheck

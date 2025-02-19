@@ -68,6 +68,7 @@
     pass-wayland
     pinentry-qt
     pipx
+    plantuml
     poweralertd
     ripgrep
     ruff
