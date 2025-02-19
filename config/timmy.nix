@@ -51,6 +51,7 @@
     gdb
     gnupg
     helix
+    jdk
     jq
     pass
     pipx
